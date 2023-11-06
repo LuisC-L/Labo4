@@ -18,11 +18,11 @@ export default class HttpContext {
         this.req = req;
         this.res = res;
         this.path = utilities.decomposePath(req.url);
-        this.response = new Response(res);
+        this.response = new Response(this);
         this.payload = null;
-        this.secure = req.headers['x-forwarded-proto'] != undefined;
+        this.secure = req.headers['x-forwarded-proto'] !== undefined;
         this.host = (this.secure ? "https://" : "http://") + req.headers["host"];
-        this.hostIp = req.headers['x-forwarded-for'] != undefined ? req.headers['x-forwarded-for'] : "127.0.0.1";
+        this.hostIp = req.headers['x-forwarded-for'] !== undefined ? req.headers['x-forwarded-for'] : "127.0.0.1";
     }
     static get() { 
         return httpContext; 
@@ -34,7 +34,7 @@ export default class HttpContext {
                 body += chunk; // body.push(chunk) was a mistake and do not work with big data
             }).on('end', () => {
                 if (body.length > 0) {
-                    if (this.req.headers['content-type'] == "application/json") {
+                    if (this.req.headers['content-type'] === "application/json") {
                         try {
                             this.payload = JSON.parse(body);
                         }
@@ -53,7 +53,7 @@ export default class HttpContext {
                     catch (error) { console.log(error); }
                 }
                 if (this.payload != null) {
-                    if (Object.keys(this.payload).length == 0)
+                    if (Object.keys(this.payload).length === 0)
                         this.payload = null;
                 }
                 resolve(this.payload);

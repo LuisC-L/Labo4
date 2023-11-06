@@ -8,7 +8,7 @@ globalThis.repositoryCaches = [];
 
 export default class RepositoryCachesManager {
     static add(model, data) {
-        if (model != "") {
+        if (model !== "") {
             RepositoryCachesManager.clear(model);
             repositoryCaches.push({
                 model,
@@ -19,11 +19,11 @@ export default class RepositoryCachesManager {
         }
     }
     static clear(model) {
-        if (model != "") {
+        if (model !== "") {
             let indexToDelete = [];
             let index = 0;
             for (let cache of repositoryCaches) {
-                if (cache.model == model) indexToDelete.push(index);
+                if (cache.model === model) indexToDelete.push(index);
                 index++;
             }
             utilities.deleteByIndex(repositoryCaches, indexToDelete);
@@ -31,9 +31,9 @@ export default class RepositoryCachesManager {
     }
     static find(model) {
         try {
-            if (model != "") {
+            if (model !== "") {
                 for (let cache of repositoryCaches) {
-                    if (cache.model == model) {
+                    if (cache.model === model) {
                         // renew cache
                         cache.Expire_Time = utilities.nowInSeconds() + repositoryCachesExpirationTime;
                         console.log("File data of " + model + ".json retreived from respository cache");

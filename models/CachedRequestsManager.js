@@ -1,14 +1,19 @@
 import * as utilities from "../utilities.js";
 import * as serverVariables from "../serverVariables.js";
+import { v1 as uuidv1 } from "uuid";
 import {log} from "../log.js";
 let cachedRequestsExpirationTime = serverVariables.get("main.repository.CacheExpirationTime");
 
 globalThis.CachedRequests = [];
+globalThis.CachedRequestsEtags = {};
 export default class CachedRequestsManager {
     static add(url, content, ETag = "") {
         if(url !== ""){
+            CachedRequestsManager.clear(url);
             if(ETag === ""){
                 //create etag
+                ETag = uuidv1();
+                CachedRequestsEtags[url] = ETag;
             }
             CachedRequests.push({
                 url,
@@ -28,10 +33,11 @@ export default class CachedRequestsManager {
                 // target all entries related to the same APIendpoint url base
                 if (endpoint.url.toLowerCase().indexOf(url.toLowerCase()) > -1){
                     indexToDelete.push(index);
+                    delete CachedRequestsEtags[endpoint.url];
                 }
                 index++;
             }
-            utilities.deleteByIndex(repositoryCaches, indexToDelete);
+            utilities.deleteByIndex(CachedRequests, indexToDelete);
         }
     }
 
@@ -43,7 +49,7 @@ export default class CachedRequestsManager {
                         // renew cache
                         cache.Expire_Time = utilities.nowInSeconds() + cachedRequestsExpirationTime;
                         console.log(`Data cached with ${url} retrieved from cached requests`);
-                        return cache.content;
+                        return cache;
                     }
                 }
             }
@@ -68,14 +74,20 @@ export default class CachedRequestsManager {
     }
 
     static get(HttpContext) {
-        const cache = this.find(HttpContext.req.url);
+        let url = HttpContext.req.url;
+        const cache = this.find(url);
         if (cache) {
-            console.log(`Extraction successful from cache with url : ${cache.url}`);
+            console.log(`Extraction successful from cache with url : ${url}`);
             HttpContext.response.JSON(cache, cache.ETag, true);
+            return true;
         } else {
-            console.log(`Extraction not successful from cache with url : ${cache.url}`);
+            console.log(`Extraction not successful from cache with url : ${url}`);
             HttpContext.response.JSON(cache);
+            return false;
         }
     }
 }
+// periodic cleaning of expired cached repository data
+setInterval(CachedRequestsManager.flushExpired, cachedRequestsExpirationTime * 1000);
+log(BgWhite, FgBlack, "Periodic repository caches cleaning process started...");
 

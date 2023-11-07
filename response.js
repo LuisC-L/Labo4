@@ -40,13 +40,15 @@ export default class Response {
         this.end();
     }
     JSON(jsonObj, ETag = "", fromCache = false) {
-        let estAPI = this.HttpContext.req.url.contains('/api');
-        let idDefini = this.HttpContext.req.url.contains('/api/');
-        if (!fromCache && estAPI && !idDefini) {
-            CachedRequestsManager.add(jsonObj.url,jsonObj.content,ETag)
+        let url = this.HttpContext.req.url;
+        let isAPI = url.includes('/api');
+        let idDefined = url.match(/\/api\/\d+/);
+        if (!fromCache && isAPI && !idDefined) {
+            CachedRequestsManager.add(url,jsonObj.content,ETag)
+            return;
         }
 
-        if (ETag != "")
+        if (ETag !== "")
             this.res.writeHead(200, { 'content-type': 'application/json', 'ETag': ETag });
         else
             this.res.writeHead(200, { 'content-type': 'application/json' });

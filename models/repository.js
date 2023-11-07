@@ -38,9 +38,9 @@ export default class Repository {
         }
         if (this.objectsList == null) {
           try {
-            let rawdata = fs.readFileSync(this.objectsFile);
+            let rawData = fs.readFileSync(this.objectsFile);
             // we assume here that the json data is formatted correctly
-            this.objectsList = JSON.parse(rawdata);
+            this.objectsList = JSON.parse(rawData);
             if (this.cached)
               RepositoryCachesManager.add(this.objectsName, this.objectsList);
           } catch (error) {

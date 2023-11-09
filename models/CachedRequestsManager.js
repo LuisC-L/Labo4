@@ -82,7 +82,6 @@ export default class CachedRequestsManager {
             return true;
         } else {
             console.log(`Extraction not successful from cache with url : ${url}`);
-            HttpContext.response.JSON(cache);
             return false;
         }
     }

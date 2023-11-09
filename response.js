@@ -41,12 +41,18 @@ export default class Response {
     }
     JSON(jsonObj, ETag = "", fromCache = false) {
         let url = this.HttpContext.req.url;
-        let isAPI = url.includes('/api');
-        let idDefined = url.match(/\/api\/\d+/);
-        if (!fromCache && isAPI && !idDefined) {
-            CachedRequestsManager.add(url,jsonObj.content,ETag)
+        let isAPI = url.includes('/api/');
+        // let idDefined;
+        if (ETag === "" && !fromCache && isAPI) {
+            console.log("jsonObj = "+jsonObj);
+            console.log("ETag = "+ETag);
+            console.log("fromCache = "+fromCache);
+            console.log("isAPI = "+isAPI);
+            CachedRequestsManager.add(url,jsonObj.content,ETag);
             return;
         }
+
+        console.log("Should not have passed");
 
         if (ETag !== "")
             this.res.writeHead(200, { 'content-type': 'application/json', 'ETag': ETag });

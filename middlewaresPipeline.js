@@ -24,7 +24,6 @@ export default class MiddlewaresPipeline {
             console.log("Returning cached response...");
             return true;
         }
-
         for (let middleware of this.middlewares) {
             if (middleware(HttpContext)) 
                 return true;

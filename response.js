@@ -39,30 +39,20 @@ export default class Response {
         this.res.writeHead(204, { 'ETag': ETag });
         this.end();
     }
-    JSON(jsonObj, ETag = "", fromCache = false) {
-        let url = this.HttpContext.req.url;
-        let isAPI = url.includes('/api/');
-        // let idDefined;
-        if (ETag === "" && !fromCache && isAPI) {
-            console.log("jsonObj = "+jsonObj);
-            console.log("ETag = "+ETag);
-            console.log("fromCache = "+fromCache);
-            console.log("isAPI = "+isAPI);
-            CachedRequestsManager.add(url,jsonObj.content,ETag);
-            return;
+    JSON(jsonObj, ETag = "",fromCache = false) {                         // ok status with content
+        if (!fromCache && this.HttpContext.path.isAPI && this.HttpContext.path.id !== undefined){
+            CachedRequestsManager.add(this.HttpContext.req.url,jsonObj,ETag)
         }
-
-        console.log("Should not have passed");
-
-        if (ETag !== "")
+        if (ETag != "")
             this.res.writeHead(200, { 'content-type': 'application/json', 'ETag': ETag });
         else
             this.res.writeHead(200, { 'content-type': 'application/json' });
         if (jsonObj != null) {
             let content = JSON.stringify(jsonObj);
             return this.end(content);
-        } else
+        } else{
             return this.end();
+        }
     }
     HTML(content) {
         this.res.writeHead(200, { 'content-type': 'text/html' });

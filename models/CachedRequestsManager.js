@@ -67,7 +67,7 @@ export default class CachedRequestsManager {
 
     static get(HttpContext) {
         let url = HttpContext.req.url;
-        const cache = this.find(url);
+        const cache = CachedRequestsManager.find(url);
         if (cache) {
             console.log(`Extraction successful from cache with url : ${url}`);
             HttpContext.response.JSON(cache, cache.ETag, true);

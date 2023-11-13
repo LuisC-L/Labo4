@@ -6,6 +6,8 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import CachedRequestsManager from "./models/CachedRequestsManager.js";
+import { v1 as uuidv1 } from "uuid";
+import {decomposePath} from "./utilities.js";
 
 export default class Response {
     constructor(HttpContext) {
@@ -39,8 +41,11 @@ export default class Response {
         this.res.writeHead(204, { 'ETag': ETag });
         this.end();
     }
-    JSON(jsonObj, ETag = "",fromCache = false) {                         // ok status with content
-        if (!fromCache && this.HttpContext.path.isAPI && this.HttpContext.path.id !== undefined){
+    JSON(jsonObj, ETag = "",fromCache = false) {
+        let url = this.HttpContext.req.url;
+        let newURL = decomposePath(url);
+        if (!fromCache && newURL.isAPI && newURL.id === undefined){
+            ETag = uuidv1();
             CachedRequestsManager.add(this.HttpContext.req.url,jsonObj,ETag)
         }
         if (ETag != "")
@@ -64,7 +69,7 @@ export default class Response {
         this.res.writeHead(201, { 'content-type': 'application/json' });
         return this.end(JSON.stringify(jsonObj));
     }
-    content(contentType, content) {         // let the browers cache locally the receiverd content
+    content(contentType, content) {         // let the browsers cache locally the received content
         this.res.writeHead(200, { 'content-type': contentType, "Cache-Control": "public, max-age=31536000" });
         return this.end(content);
     }

@@ -1,6 +1,5 @@
 import * as utilities from "../utilities.js";
 import * as serverVariables from "../serverVariables.js";
-import { v1 as uuidv1 } from "uuid";
 import {log} from "../log.js";
 let cachedRequestsExpirationTime = serverVariables.get("main.repository.CacheExpirationTime");
 
@@ -69,8 +68,8 @@ export default class CachedRequestsManager {
         let url = HttpContext.req.url;
         const cache = CachedRequestsManager.find(url);
         if (cache) {
-            console.log(`Extraction successful from cache with url : ${url}`);
             HttpContext.response.JSON(cache, cache.ETag, true);
+            console.log(`Extraction successful from cache with url : ${url}`);
             return true;
         } else {
             console.log(`Extraction not successful from cache with url : ${url}`);

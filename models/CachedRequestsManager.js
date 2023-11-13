@@ -8,13 +8,6 @@ globalThis.CachedRequests = [];
 globalThis.CachedRequestsEtags = {};
 export default class CachedRequestsManager {
     static add(url, content, ETag = "") {
-        if(url !== ""){
-            CachedRequestsManager.clear(url);
-            if(ETag === ""){
-                //create etag
-                ETag = uuidv1();
-                CachedRequestsEtags[url] = ETag;
-            }
             CachedRequests.push({
                 url,
                 content,
@@ -22,7 +15,6 @@ export default class CachedRequestsManager {
                 Expire_Time: utilities.nowInSeconds() + cachedRequestsExpirationTime
             });
             console.log("Cache added for this URL : " + url);
-        }
     }
 
     static clear(url) {
